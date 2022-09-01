@@ -47,8 +47,7 @@ router.get('/:id', (req, res) => {
 router.post('/', fileMulter.single('fileBook'), (req, res) => {
     const {books} = stor
     let {id, title, description, authors, favorite, fileCover, fileName} = req.body
-    const {path} = req.file
-    let fileBook = {path}
+    let fileBook = req.file.path
     const newBook = new Book(id, title, description, authors, favorite, fileCover, fileName, fileBook)
     books.push(newBook)
     res.status(201)
@@ -92,8 +91,8 @@ router.get('/:id/download', (req, res) => {
     const {id} = req.params
     const idx = books.findIndex(e => e.id === id)
     if (idx !== -1) {
-        let dir = books[idx].fileBook.path
-        let img = path.basename(books[idx].fileBook.path)
+        let dir = books[idx].fileBook
+        let img = path.basename(books[idx].fileBook)
         res.download(`${dir}`, `${img}`, err => {
             if (err) {
                 res.status(404).json();
