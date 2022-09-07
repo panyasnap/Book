@@ -49,14 +49,16 @@
                 id="inputfileName"
         ><%= books.fileName %>
     </div>
-    <div class="form-group">
-        <label for="inputfileBook">fileBook</label>
+    <div class="form-group mb-3">
+        <label for="formFile" class="form-label">fileBook</label>
         <input
+                type="file"
                 name="fileBook"
-                class="form-control"
-                id="inputfileBook"
+                class="form-control-file"
+                id="formFile"
         ><%= books.fileBook %>
     </div>
+
 
     <div class="form-group text-right ">
         <button type="submit" class="btn btn-primary">Сохранить</button>

@@ -18,7 +18,7 @@ app.use('/', mainRouter)
 app.use('/api/user', userRouter)
 app.use('/api/books', bookRouter)
 //app.use('/public', express.static(__dirname+"/public"))
-//app.use(err404)
+app.use(err404)
 
 
 const PORT = process.env.PORT || 3000

@@ -28,8 +28,8 @@ const stor = {
 };
 
 [1, 2, 3].map(el => {
-    const newBook = new Book(`id ${el}`, `desc Book ${el}`, `desc Book ${el}`, `desc Book ${el}`, `desc Book ${el}`, `desc Book ${el}`,
-        `desc Book ${el}`, `desc Book ${el}`);
+    const newBook = new Book(`id ${el}`, `Book ${el}`, `description ${el}`, `authors ${el}`, `fav ${el}`, `fileCover ${el}`,
+        `FileName ${el}`, `file ${el}`);
     stor.books.push(newBook);
 });
 
@@ -42,7 +42,7 @@ router.get('/', (req, res) => {
 
 })
 
-router.get('/:id', (req, res) => {
+router.get('/view/:id', (req, res) => {
     const {books} = stor
     const {id} = req.params
     const idx = books.findIndex(e => e.id === id)
@@ -85,6 +85,7 @@ router.post('/create', fileMulter.single('fileBook'), (req, res) => {
     let {id, title, description, authors, favorite, fileCover, fileName} = req.body
     let fileBook
     let newBook
+    console.log(req.file)
     if (req.file) {
         fileBook = req.file.path
         newBook = new Book(id, title, description, authors, favorite, fileCover, fileName, fileBook)
@@ -94,13 +95,13 @@ router.post('/create', fileMulter.single('fileBook'), (req, res) => {
         newBook = new Book(id, title, description, authors, favorite, fileCover, fileName, fileBook)
         books.push(newBook)
     }
-    console.log(newBook)
     //let fileBook = req.file.path
     //books.push(newBook)
     // res.status(201)
     //res.json(newBook)
+    console.log(newBook)
 
-    res.redirect(`/api/books/${id}`)
+    res.redirect(`/api/books`)
 })
 
 router.get('/update/:id', (req, res) => {
