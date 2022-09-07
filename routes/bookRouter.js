@@ -50,7 +50,7 @@ router.get('/:id', (req, res) => {
         res.redirect('/404');
     } else {
         res.render("books/view", {
-            title: "ToDo | view",
+            title: "item | view",
             books: books[idx],
         });
     }
@@ -64,7 +64,7 @@ router.get('/:id', (req, res) => {
 router.get('/create', (req, res) => {
     res.render("books/create", {
         title: "Book | create",
-        todo: {},
+        books: {},
     });
 });
 
@@ -100,7 +100,7 @@ router.post('/create', fileMulter.single('fileBook'), (req, res) => {
     // res.status(201)
     //res.json(newBook)
 
-    res.redirect('/api/books')
+    res.redirect(`/api/books/${id}`)
 })
 
 router.get('/update/:id', (req, res) => {
@@ -109,16 +109,16 @@ router.get('/update/:id', (req, res) => {
     const idx = books.findIndex(el => el.id === id);
 
     if (idx === -1) {
-        res.redirect('port/404');
+        res.redirect('/404');
     }
 
-    res.render("api/books", {
+    res.render("books/update", {
         title: "Books | view",
         books: books[idx],
     });
 });
 //put
-router.post('/:id', (req, res) => {
+router.post('/update/:id', (req, res) => {
     const {books} = stor
     const {title, description, authors, favorite, fileCover, fileName} = req.body
     const {id} = req.params
@@ -133,12 +133,12 @@ router.post('/:id', (req, res) => {
             fileCover,
             fileName
         }
-        res.redirect(`books/${id}`);
+        res.redirect(`/api/books/${id}`);
         // res.json(books[idx])
     } else {
         // res.status(404)
         // res.json(errm)
-        res.redirect('post/404')
+        res.redirect('/404')
     }
 })
 // router.delete('/:id', (req, res) => {
@@ -154,7 +154,7 @@ router.post('/:id', (req, res) => {
 //     }
 // })
 
-router.delete('/:id', (req, res) => {
+router.post('/delete/:id', (req, res) => {
     const {books} = stor
     const {id} = req.params
     const idx = books.findIndex(e => e.id === id)
@@ -164,7 +164,7 @@ router.delete('/:id', (req, res) => {
     }
 
     books.splice(idx, 1);
-    res.redirect(`/api/books`);
+    res.redirect(`/api/books/`);
     // if (idx !== -1) {
     //     books.splice(idx, 1)
     // } else {

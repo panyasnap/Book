@@ -1,5 +1,5 @@
 const express = require('express');
-
+const path = require('path')
 const err404 = require('../book/middleware/err-404')
 const userRouter = require('../book/routes/userRouter')
 const bookRouter = require('../book/routes/bookRouter')
@@ -10,6 +10,7 @@ const app = express();
 
 app.use(express.urlencoded());
 
+app.set('views', path.join(__dirname, 'views'))
 app.set("view engine", "ejs");
 
 
