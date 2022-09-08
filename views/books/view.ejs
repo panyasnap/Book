@@ -26,7 +26,14 @@
                         </button>
                     </form>
                 </div>
-
+<div>
+    <form action="/api/books/<%= books.id %>/download" method="GET">
+        <button class="btn btn-sm btn btn-info">
+            Скачать файл
+<!--            <i class="fa fa-trash" aria-hidden="true"></i>-->
+        </button>
+    </form>
+</div>
             </div>
         </div>
     </div>

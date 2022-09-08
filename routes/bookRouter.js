@@ -85,7 +85,6 @@ router.post('/create', fileMulter.single('fileBook'), (req, res) => {
     let {id, title, description, authors, favorite, fileCover, fileName} = req.body
     let fileBook
     let newBook
-    console.log(req.file)
     if (req.file) {
         fileBook = req.file.path
         newBook = new Book(id, title, description, authors, favorite, fileCover, fileName, fileBook)
@@ -99,8 +98,6 @@ router.post('/create', fileMulter.single('fileBook'), (req, res) => {
     //books.push(newBook)
     // res.status(201)
     //res.json(newBook)
-    console.log(newBook)
-
     res.redirect(`/api/books`)
 })
 
@@ -114,17 +111,19 @@ router.get('/update/:id', (req, res) => {
     }
 
     res.render("books/update", {
-        title: "Books | view",
+        title: "Books | update",
         books: books[idx],
     });
 });
 //put
-router.post('/update/:id', (req, res) => {
+router.post('/update/:id', fileMulter.single('fileBook'), (req, res) => {
     const {books} = stor
     const {title, description, authors, favorite, fileCover, fileName} = req.body
     const {id} = req.params
-    const idx = books.findIndex(e => e.id === id)
-    if (idx !== -1) {
+    const idx = books.findIndex(el => el.id === id)
+    let fileBook
+    if (req.file) {
+        fileBook = req.file.path
         books[idx] = {
             ...books[idx],
             title,
@@ -132,15 +131,26 @@ router.post('/update/:id', (req, res) => {
             authors,
             favorite,
             fileCover,
-            fileName
+            fileName,
+            fileBook
         }
-        res.redirect(`/api/books/${id}`);
-        // res.json(books[idx])
     } else {
-        // res.status(404)
-        // res.json(errm)
-        res.redirect('/404')
+        fileBook = null
+        books[idx] = {
+            ...books[idx],
+            title,
+            description,
+            authors,
+            favorite,
+            fileCover,
+            fileName,
+            fileBook
+        }
     }
+    if (idx === -1) {
+        res.redirect('/404');
+    }
+    res.redirect(`/api/books/view/${id}`);
 })
 // router.delete('/:id', (req, res) => {
 //     const {books} = stor
@@ -180,18 +190,18 @@ router.get('/:id/download', (req, res) => {
     const idx = books.findIndex(e => e.id === id)
     if (idx !== -1) {
         let dir = books[idx].fileBook
-        let img = path.basename(books[idx].fileBook)
-        res.download(`${dir}`, `${img}`, err => {
-            if (err) {
-                res.status(404).json();
-            }
-            console.log('Your file has been downloaded!')
-        });
+        console.log(dir)
+        if (dir) {
+            let img = path.basename(books[idx].fileBook)
+            res.download(`${dir}`, `${img}`, err => {
+                if (err) {
+                    res.status(404).json();
+                }
+            });
 
-    } else {
-
-        res.status(404)
-        res.json(errm)
+        } else {
+            res.redirect('/404');
+        }
     }
 })
 module.exports = router
