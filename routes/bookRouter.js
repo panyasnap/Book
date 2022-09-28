@@ -1,65 +1,32 @@
 const express = require('express')
 const router = express.Router();
-const fileMulter = require('../middleware/file')
-const {v4: uuid} = require("uuid");
-const path = require("path");
+const Book = require('../models/books')
 
-let errm = {
-    errcode: 404,
-    errmsg: 'страница не найдена'
-}
 
-class Book {
-    constructor(id = uuid(), title = "", description = "", authors = "", favorite = "",
-                fileCover = "", fileName = "", fileBook = "") {
-        this.id = id
-        this.title = title
-        this.description = description
-        this.authors = authors
-        this.favorite = favorite
-        this.fileCover = fileCover
-        this.fileName = fileName
-        this.fileBook = fileBook
+router.get('/', async (req, res) => {
+    try {
+        const books = await Book.find().select('-__V')
+        res.render("books/index", {
+            title: "All book",
+            books: books,
+        });
+    } catch (e) {
+        res.status(500).json
     }
-}
-
-const stor = {
-    books: []
-};
-
-[1, 2, 3].map(el => {
-    const newBook = new Book(`id ${el}`, `Book ${el}`, `description ${el}`, `authors ${el}`, `fav ${el}`, `fileCover ${el}`,
-        `FileName ${el}`, `file ${el}`);
-    stor.books.push(newBook);
-});
-
-router.get('/', (req, res) => {
-    const {books} = stor
-    res.render("books/index", {
-        title: "All book",
-        books: books,
-    });
-
 })
 
-router.get('/view/:id', (req, res) => {
-    const {books} = stor
+
+router.get('/view/:id', async (req, res) => {
     const {id} = req.params
-    const idx = books.findIndex(e => e.id === id)
-    if (idx === -1) {
-        res.redirect('/404');
-    } else {
-        res.render("books/view", {
+    try {
+        const book = await Book.findById(id).select('-__V')
+        await res.render("books/view", {
             title: "item | view",
-            books: books[idx],
+            books: book,
         });
+    } catch (e) {
+        res.status(500).json
     }
-    // if (idx !== -1) {
-    //     res.json(books[idx])
-    // } else {
-    //     res.status(404)
-    //     res.json(errm)
-    // }
 })
 router.get('/create', (req, res) => {
     res.render("books/create", {
@@ -68,140 +35,76 @@ router.get('/create', (req, res) => {
     });
 });
 
-// router.post('/create', (req, res) => {
-//     const {books} = stor
-//     let {id, title, description, authors, favorite, fileCover, fileName} = req.body
-//     let fileBook = req.file.path
-//     const newBook = new Book(id, title, description, authors, favorite, fileCover, fileName)
-//     books.push(newBook)
-//     // res.status(201)
-//     // res.json(newBook)
-//
-//     res.redirect('/api/books')
-// })
-
-router.post('/create', fileMulter.single('fileBook'), (req, res) => {
-    const {books} = stor
-    let {id, title, description, authors, favorite, fileCover, fileName} = req.body
-    let fileBook
-    let newBook
-    if (req.file) {
-        fileBook = req.file.path
-        newBook = new Book(id, title, description, authors, favorite, fileCover, fileName, fileBook)
-        books.push(newBook)
-    } else {
-        fileBook = null
-        newBook = new Book(id, title, description, authors, favorite, fileCover, fileName, fileBook)
-        books.push(newBook)
+router.post('/create', async (req, res) => {
+    const {title, description, authors, favorite, fileCover, fileName} = req.body;
+    const newBook = new Book({title, description, authors, favorite, fileCover, fileName});
+    console.log(newBook)
+    try {
+        await newBook.save()
+        console.log(newBook)
+        res.redirect(`/api/books`)
+    } catch (e) {
+        console.log(newBook)
+        console.log(e)
+        res.redirect('/404');
     }
-    //let fileBook = req.file.path
-    //books.push(newBook)
-    // res.status(201)
-    //res.json(newBook)
-    res.redirect(`/api/books`)
 })
 
-router.get('/update/:id', (req, res) => {
-    const {books} = stor;
+router.get('/update/:id', async (req, res) => {
     const {id} = req.params;
-    const idx = books.findIndex(el => el.id === id);
-
-    if (idx === -1) {
+    try {
+        const book = await Book.findById(id).select('-__V')
+        res.render("books/update", {
+            title: "Books | update",
+            books: book,
+        });
+    } catch (e) {
         res.redirect('/404');
     }
 
-    res.render("books/update", {
-        title: "Books | update",
-        books: books[idx],
-    });
 });
 //put
-router.post('/update/:id', fileMulter.single('fileBook'), (req, res) => {
-    const {books} = stor
+router.post('/update/:id', async (req, res) => {
     const {title, description, authors, favorite, fileCover, fileName} = req.body
     const {id} = req.params
-    const idx = books.findIndex(el => el.id === id)
-    let fileBook
-    if (req.file) {
-        fileBook = req.file.path
-        books[idx] = {
-            ...books[idx],
-            title,
-            description,
-            authors,
-            favorite,
-            fileCover,
-            fileName,
-            fileBook
-        }
-    } else {
-        fileBook = null
-        books[idx] = {
-            ...books[idx],
-            title,
-            description,
-            authors,
-            favorite,
-            fileCover,
-            fileName,
-            fileBook
-        }
-    }
-    if (idx === -1) {
+    try {
+        await Book.findByIdAndUpdate(id, {title, description, authors, favorite, fileCover, fileName})
+        res.redirect(`/api/books/view/${id}`)
+    } catch (e) {
         res.redirect('/404');
     }
-    res.redirect(`/api/books/view/${id}`);
 })
-// router.delete('/:id', (req, res) => {
+
+
+router.post('/delete/:id', async (req, res) => {
+    const {id} = req.params
+    try {
+        await Book.deleteOne({_id: id})
+        res.redirect(`/api/books/`);
+    } catch (e) {
+        res.redirect('/404');
+    }
+
+});
+
+// router.get('/:id/download', (req, res) => {
 //     const {books} = stor
 //     const {id} = req.params
 //     const idx = books.findIndex(e => e.id === id)
-//
 //     if (idx !== -1) {
-//         books.splice(idx, 1)
-//     } else {
-//         res.status(404)
-//         res.json('404 | страница не найдена')
+//         let dir = books[idx].fileBook
+//         console.log(dir)
+//         if (dir) {
+//             let img = path.basename(books[idx].fileBook)
+//             res.download(`${dir}`, `${img}`, err => {
+//                 if (err) {
+//                     res.status(404).json();
+//                 }
+//             });
+//
+//         } else {
+//             res.redirect('/404');
+//         }
 //     }
 // })
-
-router.post('/delete/:id', (req, res) => {
-    const {books} = stor
-    const {id} = req.params
-    const idx = books.findIndex(e => e.id === id)
-
-    if (idx === -1) {
-        res.redirect('/404');
-    }
-
-    books.splice(idx, 1);
-    res.redirect(`/api/books/`);
-    // if (idx !== -1) {
-    //     books.splice(idx, 1)
-    // } else {
-    //     res.status(404)
-    //     res.json('404 | страница не найдена')
-    // }
-})
-
-router.get('/:id/download', (req, res) => {
-    const {books} = stor
-    const {id} = req.params
-    const idx = books.findIndex(e => e.id === id)
-    if (idx !== -1) {
-        let dir = books[idx].fileBook
-        console.log(dir)
-        if (dir) {
-            let img = path.basename(books[idx].fileBook)
-            res.download(`${dir}`, `${img}`, err => {
-                if (err) {
-                    res.status(404).json();
-                }
-            });
-
-        } else {
-            res.redirect('/404');
-        }
-    }
-})
 module.exports = router
