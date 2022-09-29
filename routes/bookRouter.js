@@ -38,14 +38,10 @@ router.get('/create', (req, res) => {
 router.post('/create', async (req, res) => {
     const {title, description, authors, favorite, fileCover, fileName} = req.body;
     const newBook = new Book({title, description, authors, favorite, fileCover, fileName});
-    console.log(newBook)
     try {
         await newBook.save()
-        console.log(newBook)
         res.redirect(`/api/books`)
     } catch (e) {
-        console.log(newBook)
-        console.log(e)
         res.redirect('/404');
     }
 })
