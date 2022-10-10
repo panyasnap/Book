@@ -16,9 +16,10 @@
     "express-session": "^1.17.3",
     "mongoose": "^6.6.2",
     "multer": "^1.4.5-lts.1",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "redis": "^4.3.1",
+    "socket.io": "^2.3.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

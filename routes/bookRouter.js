@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const Book = require('../models/books')
+const path = require("path");
+
 
 
 router.get('/', async (req, res) => {
@@ -20,6 +22,7 @@ router.get('/view/:id', async (req, res) => {
     const {id} = req.params
     try {
         const book = await Book.findById(id).select('-__V')
+        //res.sendFile(path.resolve(__dirname, 'index.html'));
         await res.render("books/view", {
             title: "item | view",
             books: book,
@@ -28,6 +31,8 @@ router.get('/view/:id', async (req, res) => {
         res.status(500).json
     }
 })
+
+
 router.get('/create', (req, res) => {
     res.render("books/create", {
         title: "Book | create",
