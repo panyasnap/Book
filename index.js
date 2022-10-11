@@ -12,10 +12,8 @@ const socketIO = require('socket.io');
 const app = express();
 const server = http.Server(app);
 const io = socketIO(server);
-//const httpServer = createServer(app);
 
-//app.use(express.urlencoded());
-//app.use(express.urlencoded({extended: true}));
+
 app.set('views', path.join(__dirname, 'views'))
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -25,7 +23,6 @@ app.use('/', mainRouter)
 app.use('/api/user', userRouter)
 app.use('/api/books', bookRouter)
 const UrlDB = process.env.UrlDB
-//app.use('/public', express.static(__dirname+"/public"))
 app.use(err404)
 
 
@@ -49,7 +46,6 @@ io.on('connection', (socket) => {
 
     // работа с комнатами
     const {roomName} = socket.handshake.query;
-    console.log(socket.handshake.query)
     console.log(`Socket roomName: ${roomName}`);
     socket.join(roomName);
     socket.on('message-to-room', (msg) => {
